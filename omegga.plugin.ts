@@ -26,7 +26,9 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
   async init() {
 
     let weather:WeatherState = WeatherState.Clear;
-    let weatherStatus:boolean = false;
+    let weatherStatus:boolean = true;
+    let intensity:number = 0.0;
+
     // Write your plugin!
     this.omegga.on('cmd:setweather',
     async (speaker: string, input: string) => {
@@ -37,7 +39,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       }
     });
 
-    this.omegga.on('cmd:clear',
+    this.omegga.on('cmd:weatherstop',
     async (speaker: string) => {
       if(this.omegga.getPlayer(speaker).isHost()){
         weatherStatus = false;
@@ -45,10 +47,24 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       }
     });
 
+    this.omegga.on('cmd:weatherstart',
+    async (speaker: string) => {
+      if(this.omegga.getPlayer(speaker).isHost()){
+        weatherStatus = true;
+        setTimeout(async () => {await weatherTick();}, 100);
+      }
+    });
+
     const MidAll = (message: string) => {
       for(const p of Omegga.players){
         Omegga.middlePrint(p, message);
       }
+    }
+
+    const weatherTick = async () => {
+      intensity += (Math.random() * 0.2) - 0.1;
+      Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
+      if (weatherStatus) setTimeout(async () => {await weatherTick();}, 1000);
     }
 
     const parseWeather = (state: string) => {
@@ -69,24 +85,26 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
 
     const setWeather = (state: WeatherState) => {
       if(state == WeatherState.Clear){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.0, cloudCoverage: 0.0}}}})
+        intensity = 0.0;
         MidAll('The weather has cleared up.');
       } else if (state == WeatherState.LightRain){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.2, cloudCoverage: 0.2}}}})
+        intensity = 0.3;
         MidAll('light rain.');
       } else if (state == WeatherState.HeavyRain){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.6, cloudCoverage: 0.6}}}})
+        intensity = 0.6;
         MidAll('heavy rain.');
       } else if (state == WeatherState.Thunderstorm){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 1, cloudCoverage: 1}}}})
+        intensity = 1.0;
         MidAll('thunder');
       } else {
         console.log(`No weather state found for input.`);
       }
+
+      Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
       
     }
 
-    return { registeredCommands: ['setweather', 'clear'] };
+    return { registeredCommands: ['setweather', 'weatherstart', 'weatherstop'] };
   }
 
   async stop() {
