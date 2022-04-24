@@ -29,8 +29,8 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     let weatherStatus:boolean = true;
     let intensity:number = 0.0;
     
-    let tickRate:number = 100;
-    let transitionPeriod:number = 3000;
+    let tickRate:number = 50;
+    let transitionTime:number = 6000;
 
     // Write your plugin!
     this.omegga.on('cmd:setweather',
@@ -39,6 +39,20 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       if(player.isHost()){
         console.log(input);
         setWeather(parseWeather(input));
+      }
+    });
+
+    this.omegga.on('cmd:tickrate',
+    async (speaker: string, input: string) => {
+      if(this.omegga.getPlayer(speaker).isHost()){
+        tickRate = parseInt(input);
+      }
+    });
+
+    this.omegga.on('cmd:transitiontime',
+    async (speaker: string, input: string) => {
+      if(this.omegga.getPlayer(speaker).isHost()){
+        transitionTime = parseInt(input);
       }
     });
 
@@ -82,7 +96,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       if(x <= 1){
       intensity = (Math.sin(x) * ystop) + ystart;
       Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
-      setTimeout(async () => {await transitionTick(ystart, ystop, x + (tickRate/transitionPeriod));}, tickRate); 
+      setTimeout(async () => {await transitionTick(ystart, ystop, x + (tickRate/transitionTime));}, tickRate); 
       }
     }
 
@@ -135,7 +149,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       
     }
 
-    return { registeredCommands: ['setweather', 'weatherstart', 'weatherstop'] };
+    return { registeredCommands: ['setweather', 'weatherstart', 'weatherstop', 'tr', 'tickrate', 'transitiontime'] };
   }
 
   async stop() {
