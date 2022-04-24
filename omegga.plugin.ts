@@ -32,6 +32,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     async (speaker: string, input: string) => {
       const player = this.omegga.getPlayer(speaker);
       if(player.isHost()){
+        console.log(input);
         setWeather(parseWeather(input));
       }
     });
@@ -51,13 +52,13 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     }
 
     const parseWeather = (state: string) => {
-      if(state = 'clear'){
+      if(state == 'clear'){
         return WeatherState.Clear;
-      } else if(state = 'lightrain') {
+      } else if(state == 'lightrain') {
         return WeatherState.LightRain;
-      } else if(state = 'heavyrain') {
+      } else if(state == 'heavyrain') {
         return WeatherState.HeavyRain;
-      } else if(state = 'thunderstorm') {
+      } else if(state == 'thunderstorm') {
         return WeatherState.Thunderstorm;
       }
       else{
@@ -67,20 +68,20 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     }
 
     const setWeather = (state: WeatherState) => {
-      if(state = WeatherState.Clear){
+      if(state == WeatherState.Clear){
         Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.0, cloudCoverage: 0.0}}}})
         MidAll('The weather has cleared up.');
-      } else if (state=WeatherState.LightRain){
+      } else if (state == WeatherState.LightRain){
         Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.2, cloudCoverage: 0.2}}}})
         MidAll('light rain.');
-      } else if (state=WeatherState.HeavyRain){
+      } else if (state == WeatherState.HeavyRain){
         Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.6, cloudCoverage: 0.6}}}})
         MidAll('heavy rain.');
-      } else if (state=WeatherState.Thunderstorm){
+      } else if (state == WeatherState.Thunderstorm){
         Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 1, cloudCoverage: 1}}}})
         MidAll('thunder');
       } else {
-        console.log(`No weather state found for input ${state.toString}`);
+        console.log(`No weather state found for input.`);
       }
       
     }
