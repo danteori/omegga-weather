@@ -68,13 +68,17 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
 
     const setWeather = (state: WeatherState) => {
       if(state = WeatherState.Clear){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0, cloudCoverage: 0}}}})
+        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.0, cloudCoverage: 0.0}}}})
+        MidAll('The weather has cleared up.');
       } else if (state=WeatherState.LightRain){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 1, cloudCoverage: 1}}}})
+        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.2, cloudCoverage: 0.2}}}})
+        MidAll('light rain.');
       } else if (state=WeatherState.HeavyRain){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 2, cloudCoverage: 2}}}})
+        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 0.6, cloudCoverage: 0.6}}}})
+        MidAll('heavy rain.');
       } else if (state=WeatherState.Thunderstorm){
-        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 3, cloudCoverage: 3}}}})
+        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: 1, cloudCoverage: 1}}}})
+        MidAll('thunder');
       } else {
         console.log(`No weather state found for input ${state.toString}`);
       }
