@@ -62,9 +62,13 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     }
 
     const weatherTick = async () => {
-      intensity += (Math.random() * 0.2) - 0.1;
+      let min:number = -0.2;
+      let max:number = +0.2;
+      intensity += (Math.random() * (max - min)) + min;
+      if(intensity < min) intensity = min;
+      if(intensity > max) intensity = max;
       Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
-      if (weatherStatus) setTimeout(async () => {await weatherTick();}, 1000);
+      if (weatherStatus) setTimeout(async () => {await weatherTick();}, 500);
     }
 
     const parseWeather = (state: string) => {
