@@ -28,6 +28,9 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     let weather:WeatherState = WeatherState.Clear;
     let weatherStatus:boolean = true;
     let intensity:number = 0.0;
+    
+    let tickRate:number = 100;
+    let transitionPeriod:number = 3000;
 
     // Write your plugin!
     this.omegga.on('cmd:setweather',
@@ -51,7 +54,14 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     async (speaker: string) => {
       if(this.omegga.getPlayer(speaker).isHost()){
         weatherStatus = true;
-        setTimeout(async () => {await weatherTick();}, 100);
+        weatherTick();
+      }
+    });
+
+    this.omegga.on('cmd:tr',
+    async (speaker: string, input: string) => {
+      if(this.omegga.getPlayer(speaker).isHost()){
+        startTransition(intensity, parseFloat(input));
       }
     });
 
@@ -61,14 +71,31 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       }
     }
 
-    const weatherTick = async () => {
-      let min:number = -0.2;
-      let max:number = +0.2;
-      intensity += (Math.random() * (max - min)) + min;
-      if(intensity < 0) intensity = 0;
-      if(intensity > 1) intensity = 1;
+    const startTransition = async (ystart: number, ystop: number) => {
+      if(ystart != ystop){
+        transitionTick(ystart, (ystop - ystart), 0.0);
+      }
+      
+    }
+
+    const transitionTick = async (ystart: number, ystop: number, x: number) => {
+      if(x <= 1){
+      intensity = (Math.sin(x) * ystop) + ystart;
       Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
-      if (weatherStatus) setTimeout(async () => {await weatherTick();}, 500);
+      setTimeout(async () => {await transitionTick(ystart, ystop, x + (tickRate/transitionPeriod));}, tickRate); 
+      }
+    }
+
+    const weatherTick = async () => {
+      if (weatherStatus) {
+        let min:number = -0.2;
+        let max:number = +0.2;
+        intensity += (Math.random() * (max - min)) + min;
+        if(intensity < 0) intensity = 0;
+        if(intensity > 1) intensity = 1;
+        Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
+        setTimeout(async () => {await weatherTick();}, 500); 
+      }
     }
 
     const parseWeather = (state: string) => {
