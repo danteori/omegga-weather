@@ -28,17 +28,6 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     let weather:WeatherState = WeatherState.Clear;
     let weatherStatus:boolean = false;
     // Write your plugin!
-    this.omegga.on('cmd:rain',
-    async (speaker: string) => {
-      const player = this.omegga.getPlayer(speaker);
-      if(player.isHost()){
-        weatherStatus = true;
-        //Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity:{}}}}}})
-        console.log('rain');
-      }
-      
-    });
-
     this.omegga.on('cmd:setweather',
     async (speaker: string, input: string) => {
       const player = this.omegga.getPlayer(speaker);
@@ -47,10 +36,11 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       }
     });
 
-    this.omegga.on('cmd:stoprain',
+    this.omegga.on('cmd:clear',
     async (speaker: string) => {
       if(this.omegga.getPlayer(speaker).isHost()){
         weatherStatus = false;
+        setWeather(WeatherState.Clear);
       }
     });
 
@@ -91,7 +81,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       
     }
 
-    return { registeredCommands: ['rain'] };
+    return { registeredCommands: ['setweather', 'clear'] };
   }
 
   async stop() {
