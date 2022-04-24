@@ -32,7 +32,12 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
     let tickRate:number = 50;
     let transitionTime:number = 6000;
 
-    // Write your plugin!
+    this.omegga.on('cmd:geti',
+    async (speaker: string) => {
+      const player = this.omegga.getPlayer(speaker);
+      Omegga.whisper(player, intensity.toString());
+    });
+
     this.omegga.on('cmd:setweather',
     async (speaker: string, input: string) => {
       const player = this.omegga.getPlayer(speaker);
