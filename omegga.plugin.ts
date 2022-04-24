@@ -98,7 +98,7 @@ export default class Plugin implements OmeggaPlugin<Config, Storage> {
       Omegga.loadEnvironmentData({data:{groups:{Sky:{weatherIntensity: intensity, cloudCoverage: intensity}}}})
       setTimeout(async () => {await transitionTick(ystart, ystop, x + (tickRate/transitionTime));}, tickRate); 
       } else {
-        Omegga.whisper('orion', `${x.toString()}`);
+        Omegga.whisper('orion', `x = ${x.toString()}, sin = ${((Math.sin(x) * ystop) + ystart)}`);
       }
     }
 
